@@ -8,9 +8,11 @@ from .nbttag import NBTCompound, NBTList, NBTTag, NBTTagType
 EOF_REACH_MSG: Final[str] = "Stream reached EOF before the payload's end"
 
 def _format_name(name: str) -> bytes :
+    if not name :
+        return b'""'
     RES: Final[List[bytes]] = []
-    if str and not str.strip("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                             "abcdefghijklmnopqrstuvwxyz_-.+") :
+    if str.strip("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                 "abcdefghijklmnopqrstuvwxyz_-.+") :
         name = name.replace("\\", r"\\").replace('"', r'\"')
     for i in name :
         RES.append(bytes((0xed, ord(i)>>6&63|128, ord(i)&63|128)) \

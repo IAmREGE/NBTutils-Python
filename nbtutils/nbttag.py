@@ -138,7 +138,7 @@ class NBTString(str) :
         return f"{self.__class__.__name__}({super().__repr__()})"
 
     def __str__(self) -> str :
-        return self.replace("\\", r"\\").replace('"', r'\"')
+        return '"' + self.replace("\\", r"\\").replace('"', r'\"') + '"'
 
 class NBTList(type([])) :
     def __init__(self, iterable: Iterable["NBTTag"]=()) -> None :
@@ -220,7 +220,9 @@ class NBTCompound(type({})) :
                      "abcdefghijklmnopqrstuvwxyz_-.+") :
                 R.append(cast(str, k))
             else :
+                R.append('"')
                 R.append(cast(str, k).replace("\\", r"\\").replace('"', r'\"'))
+                R.append('"')
             R.append(f":{v}")
             R.append(",")
         R[-1] = "}"
