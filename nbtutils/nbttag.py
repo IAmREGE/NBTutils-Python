@@ -1,6 +1,7 @@
 __all__ = ["NBTTagType", "NBTByte", "NBTShort", "NBTInt", "NBTLong",
-           "NBTByteArray", "NBTString", "NBTCompound", "NBTIntArray",
-           "NBTLongArray", "NBT_TAG_TYPE_CONSTRUCTOR", "NBTTag"]
+           "NBTFloat", "NBTDouble", "NBTByteArray", "NBTString",
+           "NBTCompound", "NBTIntArray", "NBTLongArray",
+           "NBT_TAG_TYPE_CONSTRUCTOR", "NBTTag"]
 
 import builtins
 from enum import Enum

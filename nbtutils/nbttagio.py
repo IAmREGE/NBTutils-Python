@@ -52,7 +52,8 @@ def writesnbttostream(tag: NBTTag, stream: BufferedIOBase) -> int :
         if not tag.value :
             return stream.write(b"{}")
         res: int = stream.write(b"{")
-        ITER2:Iterator[Tuple[str, NBTTag]] = iter(cast(NBTCompound, tag.value))
+        ITER2: Iterator[Tuple[str, NBTTag]] = \
+        iter(cast(NBTCompound, tag.value).items())
         nextnametag: Tuple[str, NBTTag] = next(ITER2)
         res += stream.write(_format_name(nextnametag[0])) + stream.write(b":")\
                + writesnbttostream(nextnametag[1], stream)
