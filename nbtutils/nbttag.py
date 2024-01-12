@@ -1,12 +1,32 @@
+"""
+This module contains objects about NBT Tags.
+
+* NBTTagType    a enum of all known NBT Tag Types.
+* NBTByte       an immutable type to represent TAG_Byte Tag Type.
+* NBTShort      an immutable type to represent TAG_Short Tag Type.
+* NBTInt        an immutable type to represent TAG_Int Tag Type.
+* NBTLong       an immutable type to represent TAG_Long Tag Type.
+* NBTFloat      an immutable type to represent TAG_Float Tag Type.
+* NBTDouble     an immutable type to represent TAG_Double Tag Type.
+* NBTByteArray  a mutable type to represent TAG_Byte_Array Tag Type.
+* NBTString     an immutable type to represent TAG_String Tag Type.
+* NBTList       a mutable type to represent NBT_List Tag Type.
+* NBTCompound   a mutable type to represent NBT_Compound Tag Type.
+* NBTIntArray   a mutable type to represent TAG_Int_Array Tag Type.
+* NBTLongArray  a mutable type to represent TAG_Long_Array Tag Type.
+* NBTTag        an immutable type to store single NBT tags.
+"""
+
 __all__ = ["NBTTagType", "NBTByte", "NBTShort", "NBTInt", "NBTLong",
-           "NBTFloat", "NBTDouble", "NBTByteArray", "NBTString",
+           "NBTFloat", "NBTDouble", "NBTByteArray", "NBTString", "NBTList",
            "NBTCompound", "NBTIntArray", "NBTLongArray",
            "NBT_TAG_TYPE_CONSTRUCTOR", "NBTTag"]
 
 import builtins
 from enum import Enum
+from numbers import Integral, Real
 import struct
-from typing import Any, Final, Iterable, List, Mapping, Optional, \
+from typing import Any, Final, Iterable, List, Literal, Mapping, Optional, \
                    SupportsIndex, Tuple, Union, cast
 
 class NBTTagType(Enum) :
@@ -25,9 +45,9 @@ class NBTTagType(Enum) :
     TAG_Long_Array = 12
 
 class NBTByte(int) :
-    def __new__(cls, val: int=0) :
-        val %= 256
-        return super().__new__(cls, val if val < 128 else val - 256)
+    def __new__(cls, val: Integral=cast(Integral, 0)) :
+        var: int = int(val) % 256
+        return super().__new__(cls, var if var < 128 else var - 256)
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({super().__repr__()})"
@@ -36,9 +56,9 @@ class NBTByte(int) :
         return f"{super().__repr__()}b"
 
 class NBTShort(int) :
-    def __new__(cls, val: int=0) :
-        val %= 65536
-        return super().__new__(cls, val if val < 32768 else val - 65536)
+    def __new__(cls, val: Integral=cast(Integral, 0)) :
+        var: int = int(val) % 65536
+        return super().__new__(cls, var if var < 32768 else var - 65536)
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({super().__repr__()})"
@@ -47,10 +67,10 @@ class NBTShort(int) :
         return f"{super().__repr__()}s"
 
 class NBTInt(int) :
-    def __new__(cls, val: int=0) :
-        val %= 0x100000000
-        return super().__new__(cls, val if val < 0x80000000 \
-                                    else val - 0x100000000)
+    def __new__(cls, val: Integral=cast(Integral, 0)) :
+        var: int = int(val) % 0x100000000
+        return super().__new__(cls, var if var < 0x80000000 \
+                                    else var - 0x100000000)
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({super().__repr__()})"
@@ -59,10 +79,10 @@ class NBTInt(int) :
         return super().__repr__()
 
 class NBTLong(int) :
-    def __new__(cls, val: int=0) :
-        val %= 0x10000000000000000
-        return super().__new__(cls, val if val < 0x8000000000000000 \
-                                    else val - 0x10000000000000000)
+    def __new__(cls, val: Integral=cast(Integral, 0)) :
+        var: int = int(val) % 0x10000000000000000
+        return super().__new__(cls, var if var < 0x8000000000000000 \
+                                    else var - 0x10000000000000000)
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({super().__repr__()})"
@@ -71,9 +91,10 @@ class NBTLong(int) :
         return f"{super().__repr__()}L"
 
 class NBTFloat(float) :
-    def __new__(cls, val: float=0.) :
-        return super().__new__(cls,
-                               struct.unpack(">f", struct.pack(">f", val))[0])
+    def __new__(cls, val: Real=cast(Real, 0.)) :
+        return super().\
+               __new__(cls, struct.\
+                            unpack(">f", struct.pack(">f", float(val)))[0])
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({super().__repr__()})"
@@ -82,9 +103,10 @@ class NBTFloat(float) :
         return f"{super().__repr__()}f"
 
 class NBTDouble(float) :
-    def __new__(cls, val: float=0.) :
-        return super().__new__(cls,
-                               struct.unpack(">d", struct.pack(">d", val))[0])
+    def __new__(cls, val: Real=cast(Real, 0.)) :
+        return super().\
+               __new__(cls, struct.\
+                            unpack(">d", struct.pack(">d", float(val)))[0])
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({super().__repr__()})"
@@ -93,11 +115,12 @@ class NBTDouble(float) :
         return f"{super().__repr__()}d"
 
 class NBTByteArray([NBTByte()].__class__) :
-    def __init__(self, iterable: Iterable[NBTByte]=()) -> None :
-        super().__init__(iterable)
+    def __init__(self, iterable: Iterable[Integral]=()) -> None :
+        super().__init__(())
         for i in iterable :
-            if not builtins.isinstance(i, NBTByte) :
-                raise ValueError
+            if not builtins.isinstance(i, Integral) :
+                raise ValueError("element of iterable is not Integral")
+            self.append(NBTByte(i))
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({super().__repr__()})"
@@ -134,6 +157,7 @@ class NBTString(str) :
         S: Final[str] = str(object_)
         if len(S) > 65535 :
             raise ValueError("string is with a length greater than 65535")
+        return super().__new__(cls, S)
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({super().__repr__()})"
@@ -248,13 +272,15 @@ class NBTCompound(type({})) :
             if not isinstance(default, NBTTag) :
                 raise ValueError
             return super().setdefault(key, default)
+        return None
 
 class NBTIntArray([NBTInt()].__class__) :
-    def __init__(self, iterable: Iterable[NBTInt]=()) -> None :
-        super().__init__(iterable)
+    def __init__(self, iterable: Iterable[Integral]=()) -> None :
+        super().__init__(())
         for i in iterable :
-            if not builtins.isinstance(i, NBTInt) :
+            if not builtins.isinstance(i, Integral) :
                 raise ValueError
+            self.append(NBTInt(i))
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({super().__repr__()})"
@@ -287,11 +313,12 @@ class NBTIntArray([NBTInt()].__class__) :
         return super().extend(iterable)
 
 class NBTLongArray([NBTLong()].__class__) :
-    def __init__(self, iterable: Iterable[NBTLong]=()) -> None :
-        super().__init__(iterable)
+    def __init__(self, iterable: Iterable[Integral]=()) -> None :
+        super().__init__(())
         for i in iterable :
-            if not builtins.isinstance(i, NBTLong) :
+            if not builtins.isinstance(i, Integral) :
                 raise ValueError
+            self.append(NBTLong(i))
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({super().__repr__()})"
@@ -328,29 +355,35 @@ NBT_TAG_TYPE_CONSTRUCTOR: Final[Tuple[type, ...]] = \
  NBTByteArray, NBTString, NBTList, NBTCompound, NBTIntArray,
  NBTLongArray)
 
-class NBTTag(object) :
-    __slots__ = ("type", "value")
+class NBTTag((NBTTagType(0), (None, NBTByte(), NBTShort(), NBTInt(), NBTLong(),
+                              NBTFloat(), NBTDouble(), NBTByteArray(),
+                              NBTString(), NBTList(), NBTCompound(),
+                              NBTIntArray(),
+                              NBTLongArray())[len("")]).__class__) :
+    @property
+    def type(self) -> NBTTagType :
+        return self[0]
 
-    type: Final[NBTTagType]
-    value: Final[Union[None, NBTByte, NBTShort, NBTInt, NBTLong, NBTFloat,
-                       NBTDouble, NBTByteArray, NBTString, NBTList,NBTCompound,
-                       NBTIntArray, NBTLongArray]]
+    @property
+    def value(self) -> Union[None, NBTByte, NBTShort, NBTInt, NBTLong,NBTFloat,
+                             NBTDouble, NBTByteArray, NBTString, NBTList,
+                             NBTCompound, NBTIntArray, NBTLongArray] :
+        return self[1]
 
-    def __init__(self, arg: Union[NBTTagType, None, NBTByte, NBTShort, NBTInt,
-                                  NBTLong, NBTFloat, NBTDouble, NBTByteArray,
-                                  NBTString, NBTList, NBTCompound, NBTIntArray,
-                                  NBTLongArray]) :
+    def __new__(cls, arg: Union[NBTTagType, None, NBTByte, NBTShort, NBTInt,
+                                NBTLong, NBTFloat, NBTDouble, NBTByteArray,
+                                NBTString, NBTList, NBTCompound, NBTIntArray,
+                                NBTLongArray]) :
         if isinstance(arg, NBTTagType) :
-            self.type = arg
-            self.value = NBT_TAG_TYPE_CONSTRUCTOR[cast(int, arg.value)]()
+            return super().__new__(cls, (arg, NBT_TAG_TYPE_CONSTRUCTOR\
+                                              [cast(int, arg.value)]()))
         else :
             for i in range(len(NBT_TAG_TYPE_CONSTRUCTOR)) :
                 if isinstance(arg, NBT_TAG_TYPE_CONSTRUCTOR[i]) :
-                    self.type = NBTTagType(i)
-                    self.value = arg
-                    break
-            else :
-                raise ValueError
+                    return super().__new__(cls, (NBTTagType(i),
+                                                 arg if arg is None else \
+                                                 type(arg)(cast(Any, arg))))
+        raise ValueError
 
     def __repr__(self) -> str :
         return f"{self.__class__.__name__}({self.value!r})"
@@ -367,3 +400,24 @@ class NBTTag(object) :
         if isinstance(value, NBTTag) :
             return self.type != value.type or self.value != value.value
         return True
+
+    def __getitem__(self,
+                    key: Literal[0, 1, -2, -1, False,
+                                 True]) -> Union[NBTTagType, None, NBTByte,
+                                                 NBTShort, NBTInt, NBTLong,
+                                                 NBTFloat, NBTDouble,
+                                                 NBTByteArray, NBTString,
+                                                 NBTList, NBTCompound,
+                                                 NBTIntArray, NBTLongArray] :
+        if key in (0, -2) :
+            return super().__getitem__(key)
+        if key in (1, -1) :
+            GET: Final[Union[None, NBTByte, NBTShort, NBTInt, NBTLong,
+                             NBTFloat, NBTDouble, NBTByteArray, NBTString,
+                             NBTList, NBTCompound, NBTIntArray, NBTLongArray]]\
+            = cast(Union[None, NBTByte, NBTShort, NBTInt, NBTLong, NBTFloat,
+                         NBTDouble, NBTByteArray, NBTString, NBTList,
+                         NBTCompound, NBTIntArray, NBTLongArray],
+                   super().__getitem__(key))
+            return GET if GET is None else type(GET)(cast(Any, GET))
+        raise TypeError
