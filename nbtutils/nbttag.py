@@ -45,7 +45,7 @@ class NBTTagType(Enum) :
     TAG_Long_Array = 12
 
 class NBTByte(int) :
-    def __new__(cls, val: Integral=cast(Integral, 0)) :
+    def __new__(cls, val: Integral=cast(Integral, 0)) -> "NBTByte" :
         var: int = int(val) % 256
         return super().__new__(cls, var if var < 128 else var - 256)
 
@@ -56,7 +56,7 @@ class NBTByte(int) :
         return f"{super().__repr__()}b"
 
 class NBTShort(int) :
-    def __new__(cls, val: Integral=cast(Integral, 0)) :
+    def __new__(cls, val: Integral=cast(Integral, 0)) -> "NBTShort" :
         var: int = int(val) % 65536
         return super().__new__(cls, var if var < 32768 else var - 65536)
 
@@ -67,7 +67,7 @@ class NBTShort(int) :
         return f"{super().__repr__()}s"
 
 class NBTInt(int) :
-    def __new__(cls, val: Integral=cast(Integral, 0)) :
+    def __new__(cls, val: Integral=cast(Integral, 0)) -> "NBTInt" :
         var: int = int(val) % 0x100000000
         return super().__new__(cls, var if var < 0x80000000 \
                                     else var - 0x100000000)
@@ -79,7 +79,7 @@ class NBTInt(int) :
         return super().__repr__()
 
 class NBTLong(int) :
-    def __new__(cls, val: Integral=cast(Integral, 0)) :
+    def __new__(cls, val: Integral=cast(Integral, 0)) -> "NBTLong" :
         var: int = int(val) % 0x10000000000000000
         return super().__new__(cls, var if var < 0x8000000000000000 \
                                     else var - 0x10000000000000000)
@@ -91,7 +91,7 @@ class NBTLong(int) :
         return f"{super().__repr__()}L"
 
 class NBTFloat(float) :
-    def __new__(cls, val: Real=cast(Real, 0.)) :
+    def __new__(cls, val: Real=cast(Real, 0.)) -> "NBTFloat" :
         return super().\
                __new__(cls, struct.\
                             unpack(">f", struct.pack(">f", float(val)))[0])
@@ -103,7 +103,7 @@ class NBTFloat(float) :
         return f"{super().__repr__()}f"
 
 class NBTDouble(float) :
-    def __new__(cls, val: Real=cast(Real, 0.)) :
+    def __new__(cls, val: Real=cast(Real, 0.)) -> "NBTDouble" :
         return super().\
                __new__(cls, struct.\
                             unpack(">d", struct.pack(">d", float(val)))[0])
@@ -153,8 +153,9 @@ class NBTByteArray([NBTByte()].__class__) :
         return super().extend(iterable)
 
 class NBTString(str) :
-    def __new__(cls, object_: object="") :
-        S: Final[str] = str(object_)
+    def __new__(cls, object_: object="") -> "NBTString" :
+        S: Final[str] = str.__str__(object_) if isinstance(object_, str) \
+                        else str(object_)
         if len(S) > 65535 :
             raise ValueError("string is with a length greater than 65535")
         return super().__new__(cls, S)
@@ -373,7 +374,7 @@ class NBTTag((NBTTagType(0), (None, NBTByte(), NBTShort(), NBTInt(), NBTLong(),
     def __new__(cls, arg: Union[NBTTagType, None, NBTByte, NBTShort, NBTInt,
                                 NBTLong, NBTFloat, NBTDouble, NBTByteArray,
                                 NBTString, NBTList, NBTCompound, NBTIntArray,
-                                NBTLongArray]) :
+                                NBTLongArray]) -> "NBTTag" :
         if isinstance(arg, NBTTagType) :
             return super().__new__(cls, (arg, NBT_TAG_TYPE_CONSTRUCTOR\
                                               [cast(int, arg.value)]()))

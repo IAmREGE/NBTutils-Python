@@ -11,9 +11,9 @@ def _format_name(name: str) -> bytes :
     if not name :
         return b'""'
     RES: Final[List[bytes]] = []
-    if str.strip("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                 "abcdefghijklmnopqrstuvwxyz_-.+") :
-        name = name.replace("\\", r"\\").replace('"', r'\"')
+    if name.strip("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                  "abcdefghijklmnopqrstuvwxyz_-.+") :
+        name = '"' + name.replace("\\", r"\\").replace('"', r'\"') + '"'
     for i in name :
         RES.append(bytes((0xed, ord(i)>>6&63|128, ord(i)&63|128)) \
                    if "\ud7ff" < i < "\ue000" else i.encode())
